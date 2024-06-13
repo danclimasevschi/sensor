@@ -14,6 +14,7 @@ import requests
 import idetect
 from reading import IIO_READER
 from information import Information
+from sensor_extra import initialize, get_reading
 
 
 def mqtt_detect():
@@ -67,12 +68,18 @@ class balenaSense():
             sys.exit()
 
     def sample(self):
+        res = None
         if self.readfrom == 'sense-hat':
-            return self.apply_offsets(self.sense_hat_reading())
+            res = self.apply_offsets(self.sense_hat_reading())
         elif self.readfrom == 'iio_sensors':
-            return self.sensor.get_readings(self.context)
+            res = self.sensor.get_readings(self.context)
         else:
-            return self.sensor.get_readings(self.sensor)
+            res = self.sensor.get_readings(self.sensor)
+        extra_sensors = get_reading()
+        for name, readings in extra_sensors.items():
+            extra_measurement = {"measurement": name, "fields": readings}
+            res.append(extra_measurement)
+        return res
 
 
 def _create_context():
@@ -103,7 +110,8 @@ if __name__ == "__main__":
     use_httpserver = os.getenv('ALWAYS_USE_HTTPSERVER', 0)
     publish_interval = os.getenv('MQTT_PUB_INTERVAL', '8')
     publish_topic = os.getenv('MQTT_PUB_TOPIC', 'sensors')
-    
+    initialize()
+
     try:
         interval = float(publish_interval)
     except Exception as e:

@@ -10,9 +10,31 @@ RUN install_packages \
 
 WORKDIR /usr/src/app
 
-RUN pip3 install smbus2 paho-mqtt requests
+RUN pip3 install smbus2 paho-mqtt requests Adafruit-Blinka RPi.GPIO \
+    # Adafruit sensor libraries:
+    adafruit-circuitpython-pm25 \
+    adafruit-circuitpython-scd30 \
+    adafruit-circuitpython-scd4x \
+    adafruit-circuitpython-sgp30 \
+    adafruit-circuitpython-bme680 \
+    adafruit-circuitpython-bme280 \
+    adafruit-circuitpython-bmp280 \
+    adafruit-circuitpython-veml7700 \
+    adafruit-circuitpython-veml6070 \
+    adafruit-circuitpython-ms8607 \
+    adafruit-circuitpython-htu21d \
+    adafruit-circuitpython-ltr390 \
+    adafruit-circuitpython-sgp40 \
+    adafruit-circuitpython-ahtx0 \
+    adafruit-circuitpython-mprls \
+    adafruit-circuitpython-tsl2591 \
+    adafruit-circuitpython-sht4x \
+    adafruit-circuitpython-ens160
 
 COPY *.py ./
+
+# Enable udevd so that plugged dynamic hardware devices show up in our container.
+ENV UDEV=1
 
 CMD ["python3", "sensor.py"]
 
